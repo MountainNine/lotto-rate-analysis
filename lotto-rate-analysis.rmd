@@ -7,7 +7,7 @@ output: html_document
 
 ## 개요
 
-로또를 사는 누구나 일확천금을 꿈꾸며 자신이 가지고 있는 번호들이 당첨번호와 일치하길 바란다. 혹자는 지난 회차들의 당첨번호를 보면서 많이 나온 번호들 또는 반대로 적게 나온 번호들로 로또 번호를 찍기도 한다. 이 글에서는 지난 회차들에서 가장 많이 나온 번호와 가장 적게 나온 번호를 나열하고, 이들의 확률이 균일한 편인지 검증해볼 것이다.
+로또를 사는 누구나 일확천금을 꿈꾸며 자신이 가지고 있는 번호들이 당첨번호와 일치하길 바란다. 혹자는 지난 회차들의 당첨번호를 보면서 많이 나온 번호들 또는 반대로 적게 나온 번호들로 로또 번호를 찍기도 한다. 이 글에서는 지난 회차들에서 가장 많이 나온 번호와 가장 적게 나온 번호를 나열하고, 이들의 확률이 균일한 편인지 검정해볼 것이다.
 
 ## 데이터 수집
 
@@ -31,15 +31,34 @@ for (x in 1:944) {
 write.csv(df_lotto_num, "./lotto.csv")
 ```
 
+## 전처리
+
+lotto.csv에서 데이터를 읽어와서, 각 회차별 보너스 번호를 제외한 6개의 번호들만 추출한다. 그 다음, 1~6번째 번호별로 1부터 45까지의 번호가 얼마나 나왔는지 total() 함수로 집계한 뒤, 이를 다시 합쳐서 집계했다. 코드와 집계된 데이터프레임은 다음과 같다.
+
+
 The code chunk appears:
 ```{r}
-```
+library(dplyr)
+library(data.table)
 
-Type any R code in the chunk, for example:
+df_lotto_num <- read.csv("./lotto.csv")
+df_lotto <- subset(df_lotto_num, select = c("drwtNo1", "drwtNo2", "drwtNo3", "drwtNo4", "drwtNo5", "drwtNo6")) #보너스 번호는 제외
+df_count <- apply(df_lotto, 2, table)
+df_sum <- NULL
+for(item in df_count) {
+  if(is.null(df_sum)) {
+    df_sum <- as.data.frame(df_count$drwtNo1)
+  } else {
+    df_item <- as.data.frame(item)
+    df_sum <- rbindlist(list(df_sum, df_item))[,lapply(.SD, sum, na.rm=TRUE), by = Var1]
+  }
+}
+df_sum
+```
+## 검정
+지금까지 나온 번호들이 모두 균일하게 나왔는지에 대해, 카이제곱검정을 통해 검정할 수 있다. chisq.test() 함수로 검정해 본 결과,
+
 ```{r}
-mycars <- within(mtcars, { cyl <- ordered(cyl) })
-mycars
+chisq.test(df_sum$Freq)
 ```
-
-Now, click the **Run** button on the chunk toolbar to [execute](https://www.jetbrains.com/help/pycharm/r-markdown.html#run-r-code) the chunk code. The result should be placed under the chunk.
-Click the **Knit and Open Document** to built and preview an output.
+카이제곱 값(X^2)은 32.552, 자유도(df)는 44, 유의확률(p-value)는 0.8985의 값이 나왔다. 이때, 신뢰수준을 95%로 가정하면, 유의수준(alpha level)은 0.05가 되고, 이는 유의확률보다 매우 작다. 다시 말해, 95%의 신뢰 수준에서, 로또 번호별 확률은 균일하다고 볼 수 있다.
