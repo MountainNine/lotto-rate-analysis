@@ -39,10 +39,44 @@ lotto.csv에서 데이터를 읽어와서, 각 회차별 보너스 번호를 제
 
 
 The code chunk appears:
-```{r}
-library(dplyr)
-library(data.table)
 
+```r
+library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
+library(data.table)
+```
+
+```
+## 
+## Attaching package: 'data.table'
+```
+
+```
+## The following objects are masked from 'package:dplyr':
+## 
+##     between, first, last
+```
+
+```r
 df_lotto_num <- read.csv("./lotto.csv")
 df_lotto <- subset(df_lotto_num, select = c("drwtNo1", "drwtNo2", "drwtNo3", "drwtNo4", "drwtNo5", "drwtNo6")) #보너스 번호는 제외
 df_count <- apply(df_lotto, 2, table)
@@ -57,29 +91,94 @@ for(item in df_count) {
 }
 df_sum
 ```
+
+```
+##     Var1 Freq
+##  1:    1  132
+##  2:    2  124
+##  3:    3  126
+##  4:    4  129
+##  5:    5  128
+##  6:    6  118
+##  7:    7  125
+##  8:    8  127
+##  9:    9   95
+## 10:   10  131
+## 11:   11  128
+## 12:   12  135
+## 13:   13  134
+## 14:   14  133
+## 15:   15  127
+## 16:   16  123
+## 17:   17  136
+## 18:   18  137
+## 19:   19  130
+## 20:   20  132
+## 21:   21  125
+## 22:   22  107
+## 23:   23  113
+## 24:   24  124
+## 25:   25  122
+## 26:   26  125
+## 27:   29  114
+## 28:   35  115
+## 29:   27  139
+## 30:   28  117
+## 31:   30  112
+## 32:   31  127
+## 33:   32  110
+## 34:   33  131
+## 35:   34  146
+## 36:   36  126
+## 37:   37  128
+## 38:   38  127
+## 39:   39  136
+## 40:   40  134
+## 41:   41  114
+## 42:   42  123
+## 43:   43  140
+## 44:   44  126
+## 45:   45  133
+##     Var1 Freq
+```
 ## 시각화
 
 먼저 로또 번호별 등장 개수를 막대 그래프로 시각화해봤다.
 
-```{r}
+
+```r
 library(ggplot2)
 library(gcookbook)
 
 ggplot(df_sum, aes(df_sum$Var1, df_sum$Freq))+geom_bar(stat = 'identity')
 ```
+
+![](C:\Users\mt_9\DOCUME~1\RPROJE~1\lotto\LOTTO-~1/figure-html/unnamed-chunk-2-1.png)<!-- -->
 이 등장 개수들을 오름차순으로 다시 정렬해보면,
 
-```{r}
+
+```r
 ggplot(df_sum, aes(x=reorder(Var1, Freq), y=Freq))+geom_bar(stat = 'identity')
 ```
+
+![](C:\Users\mt_9\DOCUME~1\RPROJE~1\lotto\LOTTO-~1/figure-html/unnamed-chunk-3-1.png)<!-- -->
 34번이 가장 많이 등장했고, 9번이 가장 적게 등장했음을 알 수 있다.
 
 ## 검정
 
 지금까지 나온 번호들이 모두 균일하게 나왔는지에 대해, 카이제곱검정을 통해 검정할 수 있다. chisq.test() 함수로 검정해 본 결과,
 
-```{r}
+
+```r
 chisq.test(df_sum$Freq)
+```
+
+```
+## 
+## 	Chi-squared test for given probabilities
+## 
+## data:  df_sum$Freq
+## X-squared = 32.552, df = 44, p-value = 0.8985
 ```
 카이제곱 값(X^2)은 32.552, 자유도(df)는 44, 유의확률(p-value)는 0.8985의 값이 나왔다. 이때, 신뢰수준을 95%로 가정하면, 유의수준(alpha level)은 0.05가 되고, 이는 유의확률보다 매우 작다. 다시 말해, 95%의 신뢰 수준에서, 로또 당첨번호별 등장 확률은 균일하다고 볼 수 있다.
 
