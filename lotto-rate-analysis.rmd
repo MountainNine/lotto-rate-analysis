@@ -2,7 +2,8 @@
 title: "로또 당첨번호에 나온 번호는 모두 균일하게 나왔을까?"
 author: "MountainNine"
 date: "13 January 2021"
-output: html_document
+output:
+  md_document
 ---
 
 ## 개요
