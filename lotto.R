@@ -4,6 +4,7 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 library(data.table)
+library(ggplot2)
 
 ######### 크롤링 및 CSV에 저장
 
@@ -39,7 +40,7 @@ for(item in df_count) {
 
 ######### 시각화 및 검정
 
-barplot(height = df_sum$Freq, width = df_sum$Var1, col = "blue", border = "white")
+ggplot(df_sum, aes(x=reorder(Var1, Freq), y=Freq))+geom_bar(stat = 'identity')
 chisq.test(df_sum$Freq)
 
 # X-squared = 32.552, df = 44, p-value = 0.8985
