@@ -5,9 +5,31 @@ date: "13 January 2021"
 output: html_document
 ---
 
-## Introduction
+## 개요
 
-로또를 사는 누구나 일확천금을 꿈꾸며 자신이 가지고 있는 번호들이 당첨번호와 일치하길 바란다. 혹자는 지난 회차들의 당첨번호를 보면서 많이 나온 번호들 또는 반대로 적게 나온 번호들로 로또 번호를 찍기도 한다. 이 글에서는 지난 회차들에서 가장 많이 나온 번호와 가장 적게 나온 번호를 나열하고, 이들의 확률이 균등한 편인지 검증해볼 것이다.
+로또를 사는 누구나 일확천금을 꿈꾸며 자신이 가지고 있는 번호들이 당첨번호와 일치하길 바란다. 혹자는 지난 회차들의 당첨번호를 보면서 많이 나온 번호들 또는 반대로 적게 나온 번호들로 로또 번호를 찍기도 한다. 이 글에서는 지난 회차들에서 가장 많이 나온 번호와 가장 적게 나온 번호를 나열하고, 이들의 확률이 균일한 편인지 검증해볼 것이다.
+
+## 데이터 수집
+
+2021년 1월 13일 기준으로 현재까지 총 944번의 로또 추첨이 시행되었다. 이 당첨 번호들은 동행복권(dh.lottery.co.kr)에서 제공하는 api를 호출하여 가져와서 csv로 저장했다. 코드는 다음과 같다.
+```
+library(httr)
+library(jsonlite)
+basic_url <- 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo='
+df_lotto_num <- NULL
+for (x in 1:944) {
+  req_url <- paste0(basic_url, x)
+  df_response <- as.data.frame(fromJSON(req_url))
+  df_sub <- subset(df_response, select = c("drwNo", "drwtNo1", "drwtNo2", "drwtNo3", "drwtNo4", "drwtNo5", "drwtNo6", "bnusNo"))
+  if(x == 1) {
+    df_lotto_num <- df_sub
+  } else {
+      df_lotto_num <- rbind(df_lotto_num, df_sub)
+  }
+  print(paste(x , "crawled."))
+}
+write.csv(df_lotto_num, "./lotto.csv")
+```
 
 The code chunk appears:
 ```{r}
