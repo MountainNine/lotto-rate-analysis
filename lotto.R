@@ -39,7 +39,7 @@ for(item in df_count) {
 
 ######### 시각화 및 검정
 
-barplot(height = df_sum$Freq, col = "blue", border = "white")
+barplot(height = df_sum$Freq, width = df_sum$Var1, col = "blue", border = "white")
 chisq.test(df_sum$Freq)
 
 # X-squared = 32.552, df = 44, p-value = 0.8985
